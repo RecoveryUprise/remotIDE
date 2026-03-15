@@ -5,7 +5,6 @@ const pinSubmit = document.getElementById('pin-submit');
 const pinError = document.getElementById('pin-error');
 
 const commandInput = document.getElementById('command-input');
-const commandSubmit = document.getElementById('command-submit');
 const terminalOutput = document.getElementById('terminal-output');
 const terminalContainer = document.getElementById('terminal-container');
 
@@ -498,13 +497,11 @@ function initializeSocket(token) {
     });
 
     socket.on('system:dev_loop_start', () => {
-        commandSubmit.classList.add('hidden');
         btnAbort.classList.remove('hidden');
     });
 
     socket.on('system:dev_loop_end', () => {
         btnAbort.classList.add('hidden');
-        commandSubmit.classList.remove('hidden');
     });
 
     // --- PHASE 7: PROJECT MANAGER ---
@@ -602,7 +599,6 @@ function sendCommand() {
     commandInput.value = '';
 }
 
-commandSubmit.addEventListener('click', sendCommand);
 commandInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendCommand();
 });
