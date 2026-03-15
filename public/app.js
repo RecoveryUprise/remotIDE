@@ -28,24 +28,23 @@ if (serverHost) {
 
 // Phase 7 Sidebar UI
 const projectSidebar = document.getElementById('project-sidebar');
-const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
 const btnCloseSidebar = document.getElementById('btn-close-sidebar');
 const btnNewChat = document.getElementById('btn-new-chat');
 const chatHistoryList = document.getElementById('chat-history-list');
 const repoCloneUrl = document.getElementById('repo-clone-url');
 const btnCloneRepo = document.getElementById('btn-clone-repo');
 
-btnToggleSidebar.addEventListener('click', () => {
-    projectSidebar.classList.add('open');
-    mainUi.classList.add('sidebar-open-push');
-    if (socket && socket.connected) {
-        socket.emit('system:list_chats'); // Refresh list when opened
-    }
-});
-
 btnCloseSidebar.addEventListener('click', () => {
-    projectSidebar.classList.remove('open');
-    mainUi.classList.remove('sidebar-open-push');
+    if (projectSidebar.classList.contains('open')) {
+        projectSidebar.classList.remove('open');
+        mainUi.classList.remove('sidebar-open-push');
+    } else {
+        projectSidebar.classList.add('open');
+        mainUi.classList.add('sidebar-open-push');
+        if (socket && socket.connected) {
+            socket.emit('system:list_chats'); // Refresh list when opened
+        }
+    }
 });
 
 btnNewChat.addEventListener('click', () => {
