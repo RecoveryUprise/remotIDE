@@ -717,8 +717,12 @@ The backend will intercept this block and execute it natively in the requested s
                      }
                 } catch(e) {}
                 
+                // Phase 14: Load custom settings prompt
+                const projectSettings = loadProjectSettings(cwd);
+                const customPrompt = projectSettings.systemPrompt ? `[PROJECT LEVEL INSTRUCTIONS]:\n${projectSettings.systemPrompt}\n\n` : '';
+                
                 const logContext = socket.terminalLogs['gemini'].length > 0 ? `\n\n[Recent Terminal History (Last 50 Lines)]:\n${socket.terminalLogs['gemini'].join('\n')}` : '';
-                const contextualizedMessage = `[System Context: The user is currently operating in the local directory: ${cwd}. \n\n### OMNISCIENT PROJECT STATE ###\nThe following is the complete contents of every code file currently in the project directory:\n${omniscientContext}\n################################\n]${persistentContext}${logContext}${taggedFilesContext}\n\nUser Request: ${command}`;
+                const contextualizedMessage = `${customPrompt}[System Context: The user is currently operating in the local directory: ${cwd}. \n\n### OMNISCIENT PROJECT STATE ###\nThe following is the complete contents of every code file currently in the project directory:\n${omniscientContext}\n################################\n]${persistentContext}${logContext}${taggedFilesContext}\n\nUser Request: ${command}`;
                 
                 // We don't want to block the thread, so we immediately execute async code to stream the AI response
                 const processGeminiTurn = async (messagePrompt, loopCount = 0) => {
@@ -854,8 +858,12 @@ WHAT NOT TO DO (ANTI-PATTERNS):
                           }
                      } catch(e) {}
                      
+                     // Phase 14: Load custom settings prompt
+                     const projectSettings = loadProjectSettings(cwd);
+                     const customPrompt = projectSettings.systemPrompt ? `[PROJECT LEVEL INSTRUCTIONS]:\n${projectSettings.systemPrompt}\n\n` : '';
+                     
                      const logContext = socket.terminalLogs['ollama'].length > 0 ? `\n\n[Recent Terminal History (Last 50 Lines)]:\n${socket.terminalLogs['ollama'].join('\n')}` : '';
-                     const contextualizedMessage = `[System Context: The user is currently operating in the local directory: ${cwd}. \n\n### OMNISCIENT PROJECT STATE ###\nThe following is the complete contents of every code file currently in the project directory:\n${omniscientContext}\n################################\n]${persistentContext}${logContext}${taggedFilesContext}\n\nUser Request: ${messagePrompt}`;
+                     const contextualizedMessage = `${customPrompt}[System Context: The user is currently operating in the local directory: ${cwd}. \n\n### OMNISCIENT PROJECT STATE ###\nThe following is the complete contents of every code file currently in the project directory:\n${omniscientContext}\n################################\n]${persistentContext}${logContext}${taggedFilesContext}\n\nUser Request: ${messagePrompt}`;
                      
                      try {
                          const payload = {
