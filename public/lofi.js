@@ -172,11 +172,11 @@ class LofiRadioApp {
         background: rgba(10, 10, 25, 0.88);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(76, 175, 80, 0.25);
+        border: 1px solid rgba(0, 255, 255, 0.25);
         box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
       }
       .lofi-scroll::-webkit-scrollbar { width: 6px; }
-      .lofi-scroll::-webkit-scrollbar-thumb { background-color: rgba(76,175,80,0.3); border-radius: 3px; }
+      .lofi-scroll::-webkit-scrollbar-thumb { background-color: rgba(0,255,255,0.3); border-radius: 3px; }
     `;
     document.head.appendChild(style);
   }
@@ -334,7 +334,7 @@ class LofiRadioApp {
     const eqBars = (active, size) => {
         const heights = [0.6, 1, 0.4, 0.8];
         return '<div style="display: flex; align-items: flex-end; gap: 1.5px; height: ' + size + 'px;">' +
-            heights.map((h, i) => '<div style="width: ' + Math.max(2, size/6) + 'px; border-radius: 1px; background: ' + (active ? '#4caf50' : '#555') + '; height: ' + (active ? (size*h)+'px' : '3px') + '; animation: ' + (active ? 'lofi-eq '+(0.6 + i*0.15)+'s ease-in-out '+(i*0.1)+'s infinite alternate' : 'none') + '; transform-origin: bottom; max-height: ' + (size*h) + 'px;"></div>').join('') +
+            heights.map((h, i) => '<div style="width: ' + Math.max(2, size/6) + 'px; border-radius: 1px; background: ' + (active ? '#0ff' : '#555') + '; height: ' + (active ? (size*h)+'px' : '3px') + '; animation: ' + (active ? 'lofi-eq '+(0.6 + i*0.15)+'s ease-in-out '+(i*0.1)+'s infinite alternate' : 'none') + '; transform-origin: bottom; max-height: ' + (size*h) + 'px;"></div>').join('') +
         '</div>';
     };
 
@@ -358,20 +358,20 @@ class LofiRadioApp {
         return;
     }
 
-    const shadow = playing ? 'box-shadow: 0 0 16px rgba(76, 175, 80, 0.15), 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);' : '';
+    const shadow = playing ? 'box-shadow: 0 0 16px rgba(0, 255, 255, 0.15), 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);' : '';
 
     const catHtml = CATEGORIES.map(c => {
         const active = filter === c.key;
-        return '<div data-action="setFilter" data-value="' + c.key + '" style="padding: 3px 8px; border-radius: 10px; cursor: pointer; font-size: ' + (isMobile?'9px':'10px') + '; background: ' + (active ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255,255,255,0.04)') + '; color: ' + (active ? '#4caf50' : '#888') + '; border: 1px solid ' + (active ? 'rgba(76, 175, 80, 0.4)' : 'rgba(255,255,255,0.06)') + '; transition: all 0.2s; font-weight: ' + (active ? 600 : 400) + '; white-space: nowrap;">' + c.icon + ' ' + c.label + '</div>';
+        return '<div data-action="setFilter" data-value="' + c.key + '" style="padding: 3px 8px; border-radius: 10px; cursor: pointer; font-size: ' + (isMobile?'9px':'10px') + '; background: ' + (active ? 'rgba(0, 255, 255, 0.2)' : 'rgba(255,255,255,0.04)') + '; color: ' + (active ? '#0ff' : '#888') + '; border: 1px solid ' + (active ? 'rgba(0, 255, 255, 0.4)' : 'rgba(255,255,255,0.06)') + '; transition: all 0.2s; font-weight: ' + (active ? 600 : 400) + '; white-space: nowrap;">' + c.icon + ' ' + c.label + '</div>';
     }).join('');
 
     const statHtml = filtered.map(s => {
         const idx = STATIONS.indexOf(s);
         const isCurrent = idx === stationIdx;
         const isDead = deadStations.has(idx);
-        return '<div data-action="selectStation" data-value="' + idx + '" style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; border-radius: 6px; background: ' + (isCurrent ? 'rgba(76, 175, 80, 0.12)' : 'transparent') + '; transition: background 0.15s; margin-bottom: 1px; opacity: ' + (isDead ? '0.4' : '1') + ';" ' + (!isCurrent ? 'onmouseenter="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseleave="this.style.background=\'transparent\'"' : '') + '>' +
+        return '<div data-action="selectStation" data-value="' + idx + '" style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; border-radius: 6px; background: ' + (isCurrent ? 'rgba(0, 255, 255, 0.12)' : 'transparent') + '; transition: background 0.15s; margin-bottom: 1px; opacity: ' + (isDead ? '0.4' : '1') + ';" ' + (!isCurrent ? 'onmouseenter="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseleave="this.style.background=\'transparent\'"' : '') + '>' +
             '<span style="font-size: 14px; width: 20px; text-align: center; flex-shrink: 0;">' + (isCurrent && playing ? eqBars(true, 12) : s.icon) + '</span>' +
-            '<span style="flex: 1; color: ' + (isCurrent ? '#4caf50' : '#aaa') + '; font-weight: ' + (isCurrent ? 600 : 400) + '; font-size: ' + (isMobile?'10px':'11px') + '; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + s.name + '</span>' +
+            '<span style="flex: 1; color: ' + (isCurrent ? '#0ff' : '#aaa') + '; font-weight: ' + (isCurrent ? 600 : 400) + '; font-size: ' + (isMobile?'10px':'11px') + '; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + s.name + '</span>' +
             '<span style="font-size: 8px; color: ' + (isDead ? '#f44336' : '#555') + '; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;">' + (isDead ? 'offline' : s.category) + '</span>' +
         '</div>';
     }).join('');
@@ -379,12 +379,12 @@ class LofiRadioApp {
     this.container.style.cssText = containerStyle;
     this.container.innerHTML = 
         '<div class="lofi-glass" style="display: flex; align-items: center; gap: ' + (isMobile?'5px':'8px') + '; border-radius: 20px; padding: ' + (isMobile?'4px 10px':'5px 14px') + '; transition: box-shadow 0.3s; ' + shadow + '">' +
-            '<div data-action="togglePlay" style="width: ' + (isMobile?'26px':'28px') + '; height: ' + (isMobile?'26px':'28px') + '; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: ' + (playing ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255,255,255,0.06)') + '; border: 1px solid ' + (playing ? 'rgba(76, 175, 80, 0.4)' : 'rgba(255,255,255,0.1)') + '; cursor: pointer; transition: all 0.2s; font-size: 13px; flex-shrink: 0;">' +
+            '<div data-action="togglePlay" style="width: ' + (isMobile?'26px':'28px') + '; height: ' + (isMobile?'26px':'28px') + '; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: ' + (playing ? 'rgba(0, 255, 255, 0.2)' : 'rgba(255,255,255,0.06)') + '; border: 1px solid ' + (playing ? 'rgba(0, 255, 255, 0.4)' : 'rgba(255,255,255,0.1)') + '; cursor: pointer; transition: all 0.2s; font-size: 13px; flex-shrink: 0;">' +
                 (playing ? '⏸' : '▶') +
             '</div>' +
             eqBars(playing, isMobile ? 12 : 14) +
             '<div data-action="toggleExpand" style="cursor: pointer; display: flex; flex-direction: column; min-width: 0; flex: 1;">' +
-                '<span style="color: #4caf50; font-weight: 600; font-size: ' + (isMobile?'10px':'11px') + '; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: ' + (isMobile?'85px':'130px') + '; line-height: 1.2;">' +
+                '<span style="color: #0ff; font-weight: 600; font-size: ' + (isMobile?'10px':'11px') + '; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: ' + (isMobile?'85px':'130px') + '; line-height: 1.2;">' +
                     station.icon + ' ' + station.name +
                 '</span>' +
                 '<span style="color: ' + (stationError ? '#f44336' : '#666') + '; font-size: ' + (isMobile?'8px':'9px') + '; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.2;">' +
@@ -395,7 +395,7 @@ class LofiRadioApp {
                 '<span data-action="prevStation" style="cursor: pointer; font-size: 13px; padding: 2px 3px; opacity: 0.6; transition: opacity 0.2s;" onmouseenter="this.style.opacity=\'1\'" onmouseleave="this.style.opacity=\'0.6\'">⏮</span>' +
                 '<span data-action="nextStation" style="cursor: pointer; font-size: 13px; padding: 2px 3px; opacity: 0.6; transition: opacity 0.2s;" onmouseenter="this.style.opacity=\'1\'" onmouseleave="this.style.opacity=\'0.6\'">⏭</span>' +
             '</div>' +
-            (!isMobile ? '<input type="range" data-action="setVolume" min="0" max="100" value="' + volume + '" style="width: 50px; accent-color: #4caf50; cursor: pointer; opacity: 0.7;" title="Volume: ' + volume + '%" />' : '') +
+            (!isMobile ? '<input type="range" data-action="setVolume" min="0" max="100" value="' + volume + '" style="width: 50px; accent-color: #0ff; cursor: pointer; opacity: 0.7;" title="Volume: ' + volume + '%" />' : '') +
             '<span data-action="minimize" style="cursor: pointer; font-size: 12px; padding: 2px 4px; opacity: 0.5; transition: opacity 0.2s; flex-shrink: 0; margin-left: 2px; display: flex; align-items: center;" onmouseenter="this.style.opacity=\'1\'" onmouseleave="this.style.opacity=\'0.5\'" title="Minimize Radio">_</span>' +
             '<span data-action="toggleExpand" style="cursor: pointer; font-size: 10px; padding: 2px 4px; transition: transform 0.3s; transform: ' + (expanded ? 'rotate(180deg)' : 'rotate(0deg)') + '; display: inline-block; opacity: 0.5; flex-shrink: 0;" title="' + (expanded ? 'Collapse' : 'View Stations') + '">▼</span>' +
         '</div>' +
@@ -408,7 +408,7 @@ class LofiRadioApp {
             '</div>' +
             '<div style="display: flex; align-items: center; gap: 8px; padding: 6px 12px 10px; border-top: 1px solid rgba(255,255,255,0.05);">' +
                 '<span style="font-size: 12px; opacity: 0.5;">' + (volume === 0 ? '🔇' : (volume < 40 ? '🔈' : (volume < 70 ? '🔉' : '🔊'))) + '</span>' +
-                '<input type="range" data-action="setVolume" min="0" max="100" value="' + volume + '" style="flex: 1; accent-color: #4caf50; cursor: pointer;" />' +
+                '<input type="range" data-action="setVolume" min="0" max="100" value="' + volume + '" style="flex: 1; accent-color: #0ff; cursor: pointer;" />' +
                 '<span style="font-size: 9px; color: #666; min-width: 24px; text-align: right;">' + volume + '%</span>' +
             '</div>' +
         '</div>';
