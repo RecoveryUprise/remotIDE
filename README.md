@@ -5,7 +5,6 @@
 **remotIDE** is a local-host web application that turns any PC into an autonomous AI software development environment. Powered by **Gemini** and local **Ollama** models, it is capable of seamlessly executing terminal commands, scaffolding directory structures, editing code, and browsing the web—all from a sleek Synthwave-inspired mobile-friendly interface.
 
 ![remotIDE Interface](assets/screenshot.png)
-*(Drop a screenshot of your main UI here!)*
 
 ## ✨ Features
 
@@ -27,7 +26,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/remotIDE.git
+   git clone https://github.com/RecoveryUprise/remotIDE.git
    cd remotIDE
    ```
 
