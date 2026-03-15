@@ -144,6 +144,7 @@ input[type="password"], input[type="text"] {
     padding: 5px 10px;
     font-size: 0.85rem;
     border-width: 1px;
+    width: auto;
 }
 
 .synth-input {

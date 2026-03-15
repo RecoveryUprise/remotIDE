@@ -121,13 +121,13 @@
                     <div id="output-ollama" class="terminal-output hidden"></div>
                 </div>
 
-                <div class="input-area">
-                    <input type="text" id="command-input" placeholder="> Enter command..." autocomplete="off" style="width: 100%; box-sizing: border-box;"/>
-                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                        <button id="btn-voice" class="synth-btn icon-btn" title="Voice Dictation" style="min-width: 45px; margin: 0; padding: 0; font-size: 1.2em; display: flex; justify-content: center; align-items: center;">🎤</button>
-                        <button id="command-submit" class="synth-btn" style="min-width: 100px; margin: 0;">EXECUTE</button>
-                        <button id="btn-abort" class="synth-btn abort-btn hidden" style="min-width: 100px; margin: 0;">ABORT</button>
+                <div class="input-area" style="display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px;">
+                    <div style="flex: 1; position: relative; display: flex; align-items: center;">
+                        <input type="text" id="command-input" placeholder="> Enter command..." autocomplete="off" style="width: 100%; box-sizing: border-box; padding-right: 40px; margin: 0;"/>
+                        <button id="btn-voice" class="icon-btn" title="Voice Dictation" style="position: absolute; right: 5px; width: 30px; height: 30px; margin: 0; padding: 0; font-size: 1.2em; background: transparent; border: none; box-shadow: none; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--neon-cyan); transition: transform 0.2s;" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">🎤</button>
                     </div>
+                    <button id="command-submit" class="synth-btn small-btn" style="margin: 0; min-width: 80px; font-weight: bold; padding: 0 15px; border-style: dashed; background: rgba(0, 255, 255, 0.1);">[ ENTER ]</button>
+                    <button id="btn-abort" class="synth-btn abort-btn hidden small-btn" style="margin: 0; min-width: 80px; font-weight: bold; padding: 0 15px; border-style: dashed; background: rgba(255, 51, 51, 0.1);">[ CTRL+C ]</button>
                 </div>
                 <div class="auto-dev-container" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 15px 0 15px; flex-wrap: wrap; gap: 10px;">
                     <div style="display: flex; gap: 10px; align-items: center;">
