@@ -18,8 +18,7 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
 // Initialize Gemini Client
-const aiOptions = process.env.GEMINI_API_KEY ? { apiKey: process.env.GEMINI_API_KEY } : {};
-const gemini = new GoogleGenAI(aiOptions);
+let gemini = new GoogleGenAI(process.env.GEMINI_API_KEY ? { apiKey: process.env.GEMINI_API_KEY } : {});
 
 const PORT = process.env.PORT || 3000;
 const PIN = '1234'; // Hardcoded 4-digit PIN
@@ -1278,7 +1277,11 @@ WHAT NOT TO DO (ANTI-PATTERNS):
 
     socket.on('system:save_global_settings', (payload) => {
         saveGlobalSettings(payload);
-        socket.emit('output', { text: `\n[SYSTEM] Global Settings Saved.\n`, mode: 'cmd' });
+        if (payload.geminiKey) {
+            gemini = new GoogleGenAI({ apiKey: payload.geminiKey });
+        }
+        socket.emit('output', { text: `\n[SYSTEM] Global Settings Saved. Reloading interface to apply API keys...\n`, mode: 'cmd' });
+        socket.emit('system:force_reload');
     });
 
     socket.on('system:check_ollama', async () => {

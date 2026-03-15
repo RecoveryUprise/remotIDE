@@ -680,6 +680,12 @@ function initializeSocket(token) {
         ollamaStatus.style.color = statusStr.includes('Installed') ? 'var(--neon-cyan)' : 'gray';
     });
 
+    socket.on('system:force_reload', () => {
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    });
+
     socket.on('disconnect', () => {
         appendToTerminal('\n[SYSTEM] Disconnected from server.\n');
     });
