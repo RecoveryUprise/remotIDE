@@ -155,6 +155,37 @@
                     <!-- populated by JS -->
                 </div>
             </div>
+
+            <!-- Editor View -->
+            <div id="code-viewer-modal" class="view-section hidden synth-box" style="display: flex; flex-direction: column; overflow: hidden; padding: 15px;">
+                <div class="viewer-header">
+                    <h3 id="viewer-filename" class="neon-text">file.js</h3>
+                    <div class="viewer-actions">
+                         <button id="viewer-save" class="synth-btn small-btn">SAVE</button>
+                         <button id="viewer-close" class="synth-btn small-btn">CLOSE</button>
+                    </div>
+                </div>
+                
+                <div class="viewer-grid" style="flex-grow: 1; min-height: 0;">
+                    <!-- Left: Editor -->
+                    <div class="viewer-editor-pane">
+                        <textarea id="viewer-content" class="editor-textarea" spellcheck="false"></textarea>
+                    </div>
+                    
+                    <!-- Right: Context Chat -->
+                    <div class="viewer-chat-pane">
+                        <div class="parsed-vars-container">
+                            <h4 style="color:var(--neon-pink); margin-bottom: 5px; font-size:0.9em;">[ PARSED VARIABLES ]</h4>
+                            <ul id="parsed-vars-list" style="list-style: none; padding: 0; font-size: 0.8em; margin: 0;"></ul>
+                        </div>
+                        <div id="file-chat-output" style="flex:1; overflow-y:auto; margin-top: 10px; font-size:0.85em; display:flex; flex-direction:column; gap:8px;"></div>
+                        <div class="chat-input-area" style="margin-top: 10px; display:flex; gap:5px;">
+                            <input type="text" id="file-chat-input" class="synth-input" placeholder="> Chat with specific file logic..." />
+                            <button id="file-chat-submit" class="synth-btn small-btn">SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
         
         <footer id="footer-container" style="display: flex; justify-content: center; align-items: center; min-height: 60px; flex-shrink: 0; padding-top: 10px;">
