@@ -419,8 +419,17 @@ class LofiRadioApp {
             '</div>' +
         '</div>';
   }
+
+  setAudioEnabled(isEnabled) {
+    if (!isEnabled) {
+        this.container.style.display = 'none';
+        if (this.state.playing) this.togglePlay();
+    } else {
+        this.container.style.display = 'block';
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  new LofiRadioApp();
+  window.lofiAppInstance = new LofiRadioApp();
 });
