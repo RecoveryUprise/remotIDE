@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>remotIDE</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    
+    <!-- Phase 8: Syntax Highlighting dependencies -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="scanlines"></div>
+
+    <div id="pin-modal" class="modal">
+        <div class="modal-content synth-box">
+            <h2>SYSTEM LOCK</h2>
+            <p>ENTER 4-DIGIT PIN</p>
+            <input type="password" id="pin-input" maxlength="4" autocomplete="off" />
+            <button id="pin-submit" class="synth-btn">ACCESS</button>
+            <div id="pin-error" class="error-msg"></div>
+            <div id="connection-info" style="margin-top: 20px; font-size: 0.8em; color: var(--neon-cyan); opacity: 0.8;">
+                Server: <span id="server-host">...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="code-viewer-modal" class="modal hidden">
+        <div class="modal-content synth-box full-size">
+            <div class="viewer-header">
+                <h3 id="viewer-filename" class="neon-text">file.js</h3>
+                <div class="viewer-actions">
+                     <button id="viewer-save" class="synth-btn small-btn">SAVE</button>
+                     <button id="viewer-close" class="synth-btn small-btn">CLOSE</button>
+                </div>
+            </div>
+            
+            <div class="viewer-grid">
+                <!-- Left: Editor -->
+                <div class="viewer-editor-pane">
+                    <textarea id="viewer-content" class="editor-textarea" spellcheck="false"></textarea>
+                </div>
+                
+                <!-- Right: Context Chat -->
+                <div class="viewer-chat-pane">
+                    <div class="parsed-vars-container">
+                        <h4 style="color:var(--neon-pink); margin-bottom: 5px; font-size:0.9em;">[ PARSED VARIABLES ]</h4>
+                        <ul id="parsed-vars-list" style="list-style: none; padding: 0; margin: 0; font-family: monospace; font-size: 0.8em; color: var(--neon-cyan);">
+                            <!-- Populated by App.js Regex -->
+                        </ul>
+                    </div>
+                    <div id="file-chat-output" class="terminal-output" style="flex: 1; margin-top: 10px; overflow-y: auto; font-size:0.85em;"></div>
+                    <div class="chat-input-area" style="margin-top: 10px;">
+                        <input type="text" id="file-chat-input" placeholder="> Chat with this file..." autocomplete="off" style="width: 100%; box-sizing: border-box; font-size: 0.85em; padding: 8px; margin: 0; background: transparent; border: none; border-bottom: 2px solid var(--neon-pink); color: var(--neon-cyan); outline: none;" />
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button id="file-chat-submit" class="synth-btn small-btn" style="min-width: 60px; margin: 0;">SEND</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-ui" class="hidden container">
+        <!-- PHASE 7: Chat History Sidebar -->
+        <aside id="project-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3 style="color: var(--neon-cyan); margin:0;">PROJECTS</h3>
+                <button id="btn-close-sidebar" class="synth-btn icon-btn" style="border:none;">✖</button>
+            </div>
+            <div class="sidebar-actions" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
+                <button id="btn-new-chat" class="synth-btn" style="width: 100%; margin: 0;">+ NEW PROJECT</button>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="repo-clone-url" placeholder="GitHub URL..." class="synth-input" style="flex: 1; font-size: 0.8em; padding: 5px; background: rgba(0,0,0,0.5); border: 1px solid var(--neon-cyan); color: var(--neon-pink); font-family: 'Share Tech Mono', monospace; outline: none; border-radius: 4px;" autocomplete="off" />
+                    <button id="btn-clone-repo" class="synth-btn small-btn" style="margin: 0; min-width: 60px;">CLONE</button>
+                </div>
+            </div>
+            <div id="chat-history-list" class="chat-list">
+                <!-- Populated by app.js -->
+            </div>
+        </aside>
+
+        <header style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px;">
+            <button id="btn-toggle-sidebar" class="synth-btn icon-btn" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 1.5em; padding: 5px 15px; border: 1px solid var(--neon-cyan); width: auto; margin: 0; background: rgba(0,255,255,0.1);" title="Project Manager">≡</button>
+            <h1 class="neon-text" style="margin: 0;">remotIDE <span class="blink">_</span></h1>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-target="cmd">CMD</button>
+            <button class="tab-btn" data-target="powershell">PS</button>
+            <button class="tab-btn" data-target="gemini">GEMINI</button>
+            <button class="tab-btn" data-target="ollama">OLLAMA</button>
+            <button class="tab-btn" data-target="browser">BROWSER</button>
+        </nav>
+        
+        <div class="address-bar">
+            <span style="color: var(--neon-cyan); margin-right: 10px;">DIR</span>
+            <div id="path-display" class="path-display">/</div>
+        </div>
+
+        <main>
+            <!-- Shell View -->
+            <div id="shell-view" class="view-section active">
+                <div id="terminal-container" class="synth-box">
+                    <div id="output-cmd" class="terminal-output active"></div>
+                    <div id="output-powershell" class="terminal-output hidden"></div>
+                    <div id="output-gemini" class="terminal-output hidden"></div>
+                    <div id="output-ollama" class="terminal-output hidden"></div>
+                </div>
+
+                <div class="input-area">
+                    <input type="text" id="command-input" placeholder="> Enter command..." autocomplete="off" style="width: 100%; box-sizing: border-box;"/>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        <button id="btn-voice" class="synth-btn icon-btn" title="Voice Dictation" style="min-width: 45px; margin: 0; padding: 0; font-size: 1.2em; display: flex; justify-content: center; align-items: center;">🎤</button>
+                        <button id="command-submit" class="synth-btn" style="min-width: 100px; margin: 0;">EXECUTE</button>
+                        <button id="btn-abort" class="synth-btn abort-btn hidden" style="min-width: 100px; margin: 0;">ABORT</button>
+                    </div>
+                </div>
+                <div class="auto-dev-container" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 15px 0 15px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button id="btn-timemachine" class="synth-btn time-btn small-btn" title="Revert to last Git Checkpoint">⏳ TIME MACHINE</button>
+                        <select id="quick-start-select" class="synth-input" style="background: rgba(0,0,0,0.5); border: 1px solid var(--neon-cyan); color: var(--neon-pink); padding: 4px 8px; font-family: 'Share Tech Mono', monospace; outline: none; border-radius: 4px; cursor: pointer;">
+                            <option value="">-- Quick-Start Templates --</option>
+                            <option value="react-vite">React + Vite (Frontend)</option>
+                            <option value="express-api">Express Node.js (API)</option>
+                            <option value="vanilla-html">Vanilla HTML/JS (Static)</option>
+                        </select>
+                    </div>
+                    <label style="color: #64ffda; font-family: monospace; font-size: 0.9em; cursor: pointer;">
+                        <input type="checkbox" id="auto-dev-toggle" style="margin-right: 8px;">
+                        Autonomous Development Loop
+                    </label>
+                </div>
+            </div>
+
+            <!-- Browser View -->
+            <div id="browser-view" class="view-section hidden synth-box">
+                <div class="browser-controls">
+                    <button id="btn-up" class="synth-btn small-btn">⬆ Up</button>
+                    <button id="btn-mkdir" class="synth-btn small-btn">+ New Folder</button>
+                </div>
+                <div id="file-list" class="file-list">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+    <script src="lofi.js"></script>
+</body>
+</html>

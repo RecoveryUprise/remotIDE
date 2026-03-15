@@ -1,0 +1,16 @@
+{
+  "name": "antigravity-remote",
+  "version": "1.0.0",
+  "description": "Local LAN-based web app to remotely execute shell commands",
+  "main": "server.js",
+  "dependencies": {
+    "@google/genai": "^1.45.0",
+    "dotenv": "^17.3.1",
+    "express": "^4.19.2",
+    "puppeteer": "^24.39.1",
+    "socket.io": "^4.7.5"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
