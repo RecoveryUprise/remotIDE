@@ -523,7 +523,13 @@ function initializeSocket(token) {
         chats.forEach(chat => {
             const btn = document.createElement('div');
             btn.className = 'chat-item';
-            btn.innerHTML = `<strong>${chat.id}</strong><br/><span style="font-size:0.75em; color:gray;">${chat.hasHistory ? 'Saved State' : 'Empty State'}</span>`;
+            btn.innerHTML = `
+                <div class="chat-icon">${chat.id.charAt(0).toUpperCase()}</div>
+                <div class="chat-item-text">
+                    <strong>${chat.id}</strong><br/>
+                    <span style="font-size:0.75em; color:gray;">${chat.hasHistory ? 'Saved State' : 'Empty State'}</span>
+                </div>
+            `;
             
             btn.addEventListener('click', () => {
                 socket.emit('system:load_chat', chat.id);
