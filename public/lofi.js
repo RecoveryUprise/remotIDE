@@ -340,11 +340,10 @@ class LofiRadioApp {
 
     const containerStyle = 
       'position: fixed;' +
-      'top: ' + (isMobile ? 'auto' : '12px') + ';' +
-      'bottom: ' + (isMobile ? '12px' : 'auto') + ';' +
-      'right: ' + (isMobile ? 'auto' : '12px') + ';' +
-      'left: ' + (isMobile ? (minimized ? '12px' : '50%') : '12px') + ';' +
-      'transform: ' + (isMobile && !minimized ? 'translateX(-50%)' : 'none') + ';' +
+      'bottom: 12px;' +
+      'left: ' + (minimized ? '12px' : '50%') + ';' +
+      'transform: ' + (minimized ? 'none' : 'translateX(-50%)') + ';' +
+      'transition: all 0.3s ease-in-out;' +
       'z-index: 10000;' +
       'font-family: \'Share Tech Mono\', monospace;' +
       'font-size: ' + (isMobile ? '10px' : '11px') + ';' +
