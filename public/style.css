@@ -203,22 +203,42 @@ input[type="password"], input[type="text"] {
 .sidebar {
     position: fixed;
     top: 0;
-    left: -300px;
-    width: 280px;
+    left: 0;
+    width: 60px; /* Minimized width */
     height: 100vh;
     background: var(--bg-color);
     border-right: 2px solid var(--neon-cyan);
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.8);
-    transition: left 0.3s ease-in-out;
+    transition: width 0.3s ease-in-out;
     z-index: 2000;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 20px 10px; /* Reduced side padding when minimized */
     box-sizing: border-box;
+    overflow-x: hidden;
+    white-space: nowrap; /* Prevent text wrap when shrinking */
 }
 
 .sidebar.open {
-    left: 0;
+    width: 280px;
+    padding: 20px;
+}
+
+/* Hide contents when minimized */
+.sidebar .sidebar-header h3,
+.sidebar .sidebar-actions,
+.sidebar .chat-list {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Show contents when expanded */
+.sidebar.open .sidebar-header h3,
+.sidebar.open .sidebar-actions,
+.sidebar.open .chat-list {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .sidebar-header {
@@ -269,8 +289,8 @@ input[type="password"], input[type="text"] {
     height: 100vh;
     padding: 20px;
     max-width: 100%;
-    margin-left: 0;
-    width: 100%;
+    margin-left: 60px; /* Offset for minimized sidebar */
+    width: calc(100% - 60px);
     transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 
