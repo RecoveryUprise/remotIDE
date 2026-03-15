@@ -111,7 +111,18 @@ class LofiRadioApp {
   initDOM() {
     this.container = document.createElement('div');
     this.container.id = 'lofi-radio-root';
-    document.body.appendChild(this.container);
+    const footer = document.getElementById('footer-container');
+    if (footer) footer.appendChild(this.container);
+    else document.body.appendChild(this.container);
+    
+    // Autoplay on first user interaction
+    const autoPlayInit = () => {
+      if (!this.state.playing && this.ytReady && typeof window.YT !== 'undefined') {
+        this.togglePlay();
+      }
+      document.removeEventListener('click', autoPlayInit);
+    };
+    document.addEventListener('click', autoPlayInit);
     
     // Mount player div
     this.playerContainer = document.createElement('div');
@@ -339,11 +350,7 @@ class LofiRadioApp {
     };
 
     const containerStyle = 
-      'position: fixed;' +
-      'bottom: 12px;' +
-      'left: ' + (minimized ? '12px' : '50%') + ';' +
-      'transform: ' + (minimized ? 'none' : 'translateX(-50%)') + ';' +
-      'transition: all 0.3s ease-in-out;' +
+      'position: relative;' +
       'z-index: 10000;' +
       'font-family: \'Share Tech Mono\', monospace;' +
       'font-size: ' + (isMobile ? '10px' : '11px') + ';' +
