@@ -234,7 +234,7 @@ input[type="password"], input[type="text"] {
 }
 
 .sidebar .sidebar-actions,
-.sidebar .chat-list {
+.sidebar .chat-item-text {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
@@ -249,7 +249,7 @@ input[type="password"], input[type="text"] {
 }
 
 .sidebar.open .sidebar-actions,
-.sidebar.open .chat-list {
+.sidebar.open .chat-item-text {
     opacity: 1;
     pointer-events: auto;
 }
@@ -282,7 +282,10 @@ input[type="password"], input[type="text"] {
 .chat-list::-webkit-scrollbar-thumb { background-color: var(--neon-cyan); border-radius: 3px; }
 
 .chat-item {
-    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px; /* Fit icon into minimized width */
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 4px;
@@ -292,6 +295,20 @@ input[type="password"], input[type="text"] {
     cursor: pointer;
     transition: all 0.2s;
     word-break: break-all;
+}
+
+.chat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 255, 255, 0.1);
+    color: var(--neon-cyan);
+    border-radius: 50%;
+    border: 1px solid var(--neon-cyan);
+    font-weight: bold;
+    flex-shrink: 0;
 }
 
 .chat-item:hover {
