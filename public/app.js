@@ -105,19 +105,28 @@ const themeCyanInput = document.getElementById('theme-cyan-input');
 const themePinkInput = document.getElementById('theme-pink-input');
 const ollamaStatus = document.getElementById('ollama-status');
 const ollamaModelSelect = document.getElementById('ollama-model-select');
+const btnPullModel = document.getElementById('btn-pull-model');
 let currentOllamaModel = '';
 
 btnGlobalSettings.addEventListener('click', () => {
     globalSettingsModal.classList.remove('hidden');
     socket.emit('system:get_global_settings');
     socket.emit('system:check_ollama');
+    
+    // Phase 16: Active Background Polling
+    if (window.ollamaPollInterval) clearInterval(window.ollamaPollInterval);
+    window.ollamaPollInterval = setInterval(() => {
+        socket.emit('system:check_ollama');
+    }, 5000);
 });
 
 btnCancelGlobalSettings.addEventListener('click', () => {
     globalSettingsModal.classList.add('hidden');
+    if (window.ollamaPollInterval) clearInterval(window.ollamaPollInterval);
 });
 
 btnSaveGlobalSettings.addEventListener('click', () => {
+    if (window.ollamaPollInterval) clearInterval(window.ollamaPollInterval);
     const payload = {
         geminiKey: geminiKeyInput.value.trim(),
         enableRadio: toggleRadio.checked,
@@ -147,10 +156,19 @@ btnSaveGlobalSettings.addEventListener('click', () => {
 btnInstallOllama.addEventListener('click', () => {
     ollamaStatus.textContent = 'Status: Installing... (Check terminal)';
     ollamaStatus.style.color = '#ffaa00';
+    btnInstallOllama.disabled = true;
     socket.emit('system:install_ollama');
-    globalSettingsModal.classList.add('hidden');
     
     // Focus terminal to watch install progress
+    document.querySelector('[data-target="cmd"]').click();
+});
+
+btnPullModel.addEventListener('click', () => {
+    btnPullModel.textContent = 'Downloading... (Check Terminal)';
+    btnPullModel.disabled = true;
+    socket.emit('system:pull_model');
+    
+    // Focus terminal to watch download
     document.querySelector('[data-target="cmd"]').click();
 });
 
@@ -684,18 +702,38 @@ function initializeSocket(token) {
             ollamaStatus.textContent = `Status: ${data}`;
             ollamaStatus.style.color = data.includes('Installed') ? 'var(--neon-cyan)' : 'gray';
             ollamaModelSelect.classList.add('hidden');
+            btnPullModel.classList.add('hidden');
+            if (data.includes('Missing')) {
+                btnInstallOllama.classList.remove('hidden');
+                btnInstallOllama.disabled = false;
+            } else {
+                btnInstallOllama.classList.add('hidden');
+            }
         } else {
             ollamaStatus.textContent = `Status: ${data.status}`;
             ollamaStatus.style.color = data.status.includes('Ready') ? 'var(--neon-cyan)' : 'gray';
+            btnInstallOllama.classList.add('hidden');
             
             if (data.models && data.models.length > 0) {
                 ollamaModelSelect.classList.remove('hidden');
-                ollamaModelSelect.innerHTML = data.models.map(m => `<option value="${m}">${m}</option>`).join('');
-                if (currentOllamaModel && data.models.includes(currentOllamaModel)) {
-                    ollamaModelSelect.value = currentOllamaModel;
+                btnPullModel.classList.add('hidden');
+                
+                // Only rewrite innerHTML if count changed to prevent disrupting UI focus during poll
+                if (ollamaModelSelect.options.length !== data.models.length) {
+                    ollamaModelSelect.innerHTML = data.models.map(m => `<option value="${m}">${m}</option>`).join('');
+                    if (currentOllamaModel && data.models.includes(currentOllamaModel)) {
+                        ollamaModelSelect.value = currentOllamaModel;
+                    }
                 }
             } else {
                 ollamaModelSelect.classList.add('hidden');
+                btnPullModel.classList.remove('hidden');
+                if (btnPullModel.textContent.includes('Downloading')) {
+                    // It's actively downloading, keep it disabled
+                } else {
+                    btnPullModel.disabled = false;
+                    btnPullModel.textContent = 'PULL RECOMMENDED MODEL (llama3)';
+                }
             }
         }
     });

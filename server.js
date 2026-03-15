@@ -1287,9 +1287,23 @@ WHAT NOT TO DO (ANTI-PATTERNS):
         socket.emit('system:force_reload');
     });
 
+    const getOllamaCmd = async () => {
+        try {
+            await execPromise('ollama -v');
+            return 'ollama';
+        } catch(e) {
+            const fallback = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Ollama', 'ollama.exe');
+            if (fs.existsSync(fallback)) return `"${fallback}"`;
+            return null;
+        }
+    };
+
     socket.on('system:check_ollama', async () => {
         try {
-            const { stdout } = await execPromise('ollama list');
+            const cmd = await getOllamaCmd();
+            if (!cmd) throw new Error('Ollama not found in PATH or AppData');
+            
+            const { stdout } = await execPromise(`${cmd} list`);
             const lines = stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const models = [];
             
@@ -1301,7 +1315,7 @@ WHAT NOT TO DO (ANTI-PATTERNS):
             
             socket.emit('system:ollama_status', { status: 'Installed & Ready', models });
         } catch (e) {
-            socket.emit('system:ollama_status', 'Missing / Not Found (Restart Node if recently installed)');
+            socket.emit('system:ollama_status', 'Missing / Not Found');
         }
     });
 
@@ -1310,11 +1324,44 @@ WHAT NOT TO DO (ANTI-PATTERNS):
         try {
             pushLog('cmd', `[SYSTEM] Running: winget install Ollama.Ollama --accept-source-agreements --accept-package-agreements`, 'cmd');
             const { stdout, stderr } = await execPromise('winget install Ollama.Ollama --accept-source-agreements --accept-package-agreements');
-            socket.emit('output', { text: stdout + '\n' + stderr + '\n\n[SYSTEM] Ollama Installation Complete! Please restart the remotIDE server to initialize the path variables.\n', mode: 'cmd' });
-            socket.emit('system:ollama_status', 'Installed (Restart Required)');
+            socket.emit('output', { text: stdout + '\n' + stderr + '\n\n[SYSTEM] Ollama Installation Complete!\n', mode: 'cmd' });
+            socket.emit('system:ollama_status', 'Installed & Ready');
         } catch (e) {
             socket.emit('output', { text: `\n[SYSTEM ERROR] Failed to install Ollama via Winget: ${e.message}\nYou can install it manually from https://ollama.com\n`, mode: 'cmd' });
             socket.emit('system:ollama_status', 'Install Failed');
+        }
+    });
+
+    socket.on('system:pull_model', async () => {
+        try {
+            const cmd = await getOllamaCmd();
+            if (!cmd) throw new Error('Ollama executable not found');
+            
+            socket.emit('output', { text: `\n[SYSTEM] Initiating pull for recommended model 'llama3:8b-instruct-q6_K'...\nThis is a 6.6GB download. Please leave this window open...\n\n`, mode: 'cmd' });
+            
+            // Remove quotes if present for spawn
+            const cleanCmd = cmd.replace(/"/g, '');
+            const pullProcess = spawn(cleanCmd, ['pull', 'llama3:8b-instruct-q6_K']);
+            
+            pullProcess.stdout.on('data', (data) => {
+                socket.emit('output', { text: data.toString(), mode: 'cmd' });
+            });
+            
+            pullProcess.stderr.on('data', (data) => {
+                socket.emit('output', { text: data.toString(), mode: 'cmd' });
+            });
+            
+            pullProcess.on('close', (code) => {
+                if (code === 0) {
+                    socket.emit('output', { text: `\n[SYSTEM] Model 'llama3:8b-instruct-q6_K' pulled successfully! \nIt is now available in your global settings dropdown.\n`, mode: 'cmd' });
+                    // The frontend polling loop will naturally pick up the newly installed model
+                } else {
+                    socket.emit('output', { text: `\n[SYSTEM ERROR] Model pull failed with code ${code}\n`, mode: 'cmd' });
+                }
+            });
+            
+        } catch (e) {
+            socket.emit('output', { text: `\n[SYSTEM ERROR] Failed to pull model: ${e.message}\n`, mode: 'cmd' });
         }
     });
 
