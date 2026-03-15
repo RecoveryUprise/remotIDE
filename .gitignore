@@ -1,0 +1,8 @@
+node_modules/
+.env
+.antigravity_global.json
+.antigravity_chat.json
+.antigravity_settings.json
+.antigravity_context.md
+.DS_Store
+log.diff

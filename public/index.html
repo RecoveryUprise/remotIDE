@@ -40,12 +40,60 @@
         </div>
     </div>
 
+    <!-- Phase 20: New Project Wizard Modal -->
+    <div id="new-project-modal" class="modal hidden">
+        <div class="modal-content synth-box" style="width: 90%; max-width: 700px; display: flex; flex-direction: column; gap: 15px; max-height: 90vh; overflow-y: auto;">
+            <h2 style="color: var(--neon-cyan); margin: 0;">INITIALIZE PROJECT</h2>
+            
+            <div style="text-align: left;">
+                <label style="color: var(--neon-pink); font-size: 0.9em;">Project Name</label>
+                <input type="text" id="new-project-name" class="synth-input" placeholder="my-awesome-app" style="width: 100%; margin-top: 5px;" autocomplete="off" />
+            </div>
+
+            <div style="text-align: left;">
+                <label style="color: var(--neon-pink); font-size: 0.9em;">What are you trying to build?</label>
+                <textarea id="new-project-goal" class="synth-input" placeholder="e.g. A React weather dashboard that fetches data from an API and uses Tailwind CSS for styling..." style="width: 100%; height: 80px; margin-top: 5px; resize: vertical; display: block; font-family: inherit; font-size: 14px; padding: 10px;"></textarea>
+            </div>
+
+            <button id="btn-generate-architecture" class="synth-btn" style="border-color: var(--neon-pink); color: var(--neon-pink);">⚡ GENERATE ARCHITECTURE ⚡</button>
+
+            <div style="text-align: left; display: flex; flex-direction: column; flex: 1;">
+                <label style="color: var(--neon-cyan); font-size: 0.9em; display: flex; justify-content: space-between;">
+                    <span>System Prompt (Architecture)</span>
+                    <span id="system-prompt-status" style="color: gray; font-size: 0.8em; font-style: italic;">Awaiting generation...</span>
+                </label>
+                <textarea id="new-project-system-prompt" class="synth-input" placeholder="Click 'Generate Architecture' above, or write your own custom rules here..." style="width: 100%; min-height: 200px; max-height: 400px; margin-top: 5px; resize: vertical; flex: 1; font-size: 14px; padding: 10px;"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                <button id="btn-cancel-new-project" class="synth-btn" style="background: transparent; border-color: rgba(0,255,255,0.3); color: white;">CANCEL</button>
+                <button id="btn-submit-new-project" class="synth-btn">▶ START BUILDING</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Phase 14: Project Settings Modal -->
     <div id="project-settings-modal" class="modal hidden">
         <div class="modal-content synth-box" style="width: 80%; max-width: 800px; display: flex; flex-direction: column; gap: 15px;">
             <h2 style="color: var(--neon-cyan); margin: 0;">PROJECT SETTINGS</h2>
             <p style="color: var(--neon-pink); margin: 0; font-size: 0.9em;">Define custom AI instructions, specific technology stacks, or architectural rules strictly for this workspace.</p>
             <textarea id="settings-prompt-input" class="synth-input" placeholder="e.g. You are an expert React developer. Prioritize accessibility and use Tailwind CSS..." style="min-height: 250px; font-size: 14px; padding: 15px; resize: vertical;"></textarea>
+            
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 2; text-align: left;">
+                    <label style="color: var(--neon-cyan); font-size: 0.9em;">Context Exclusions (comma separated folders to ignore)</label>
+                    <input type="text" id="settings-exclusions-input" class="synth-input" placeholder="e.g. node_modules, dist, .vscode" style="width: 100%; margin-top: 5px;" autocomplete="off" />
+                </div>
+                
+                <div style="flex: 1; text-align: left;">
+                    <label style="color: var(--neon-cyan); font-size: 0.9em;">Default Engine</label>
+                    <select id="settings-engine-select" class="synth-input" style="width: 100%; margin-top: 5px; cursor: pointer; padding: 10px;">
+                        <option value="default">System Default</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="ollama">Ollama</option>
+                    </select>
+                </div>
+            </div>
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button id="btn-cancel-settings" class="synth-btn" style="background: transparent; border-color: rgba(0,255,255,0.3); color: white;">CANCEL</button>
                 <button id="btn-save-settings" class="synth-btn">SAVE</button>
@@ -61,7 +109,10 @@
             <div style="padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.2);">
                 <h4 style="color: var(--neon-pink); margin: 0 0 10px 0;">Environment Configurations</h4>
                 <label style="color: var(--neon-cyan); font-size: 0.9em;">Gemini API Key (.env)</label>
-                <input type="password" id="gemini-key-input" class="synth-input" placeholder="AIzaSy..." style="width: 100%; margin: 5px 0 15px 0;" autocomplete="off" />
+                <input type="password" id="gemini-key-input" class="synth-input" placeholder="AIzaSy..." style="width: 100%; margin: 5px 0 10px 0;" autocomplete="off" />
+                
+                <label style="color: var(--neon-cyan); font-size: 0.9em;">Application Access PIN</label>
+                <input type="password" id="global-pin-input" class="synth-input" placeholder="Leave blank for no security..." style="width: 100%; margin: 5px 0 15px 0;" autocomplete="off" />
                 
                 <div style="display: flex; flex-direction: column; align-items: stretch; gap: 10px; border-top: 1px dashed rgba(255,0,255,0.3); padding-top: 10px;">
                     <div>
@@ -82,6 +133,16 @@
                     <input type="checkbox" id="toggle-radio" checked style="transform: scale(1.5);">
                 </label>
                 
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label style="color: var(--neon-cyan); font-size: 0.8em; display:flex; justify-content:space-between;">
+                            <span>Terminal Font Scale</span>
+                            <span id="font-scale-value" style="color: var(--neon-pink);">14px</span>
+                        </label>
+                        <input type="range" id="font-scale-input" min="10" max="24" value="14" style="width: 100%; cursor: pointer;" />
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <div style="flex: 1;">
                         <label style="color: var(--neon-cyan); font-size: 0.8em;">Cyan Override</label>
@@ -91,6 +152,20 @@
                         <label style="color: var(--neon-pink); font-size: 0.8em;">Pink Override</label>
                         <input type="color" id="theme-pink-input" value="#ff00ff" style="width: 100%; cursor: pointer;" />
                     </div>
+                </div>
+            </div>
+
+            <div style="padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.2);">
+                <h4 style="color: var(--neon-pink); margin: 0 0 10px 0;">System Preferences</h4>
+                
+                <label style="color: var(--neon-cyan); font-size: 0.9em; display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    Enable Auto-Save Context Checkpoints
+                    <input type="checkbox" id="toggle-autosave" checked style="transform: scale(1.5);">
+                </label>
+                
+                <div style="text-align: left;">
+                    <label style="color: var(--neon-cyan); font-size: 0.9em;">Omniscient Context Crawler Depth Limit</label>
+                    <input type="number" id="crawler-depth-input" class="synth-input" min="1" max="10" value="5" style="width: 100%; margin-top: 5px;" autocomplete="off" />
                 </div>
             </div>
 
@@ -122,10 +197,11 @@
         </aside>
 
         <header style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; gap: 15px;">
-            <button id="btn-open-sidebar" class="synth-btn icon-btn mobile-only-inline" title="Projects & Chats" style="margin: 0; padding: 5px 12px; font-size: 1.2em; width: auto; background: rgba(0,255,255,0.1);">≡</button>
             <h1 class="neon-text" style="margin: 0;">remotIDE <span class="blink">_</span></h1>
-            <button id="btn-global-settings" class="synth-btn icon-btn" title="Global Settings" style="margin: 0; padding: 5px 12px; font-size: 1.2em; width: auto; background: rgba(0,255,255,0.1);">⚙️</button>
         </header>
+
+        <!-- Floating Top-Right Settings Gear -->
+        <button id="btn-global-settings" class="synth-btn icon-btn" title="Global Settings" style="position: fixed; top: 15px; right: 15px; z-index: 4000; margin: 0; padding: 8px 12px; font-size: 1.2em; width: auto; background: rgba(13, 6, 40, 0.9); border: 1px solid var(--neon-cyan); border-radius: 4px; box-shadow: 0 0 10px rgba(0,255,255,0.3);">⚙️</button>
 
         <nav class="tabs">
             <button class="tab-btn active" data-target="cmd">CMD</button>

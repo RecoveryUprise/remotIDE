@@ -33,7 +33,6 @@ const btnNewChat = document.getElementById('btn-new-chat');
 const chatHistoryList = document.getElementById('chat-history-list');
 const repoCloneUrl = document.getElementById('repo-clone-url');
 const btnCloneRepo = document.getElementById('btn-clone-repo');
-const btnOpenSidebar = document.getElementById('btn-open-sidebar');
 
 btnCloseSidebar.addEventListener('click', () => {
     if (projectSidebar.classList.contains('open')) {
@@ -48,23 +47,55 @@ btnCloseSidebar.addEventListener('click', () => {
     }
 });
 
-if (btnOpenSidebar) {
-    btnOpenSidebar.addEventListener('click', () => {
-        if (!projectSidebar.classList.contains('open')) {
-            projectSidebar.classList.add('open');
-            mainUi.classList.add('sidebar-open-push');
-            if (socket && socket.connected) {
-                socket.emit('system:list_chats'); // Refresh list when opened
-            }
-        }
-    });
-}
+// Phase 20: New Project Wizard
+const newProjectModal = document.getElementById('new-project-modal');
+const btnCancelNewProject = document.getElementById('btn-cancel-new-project');
+const btnSubmitNewProject = document.getElementById('btn-submit-new-project');
+const btnGenerateArchitecture = document.getElementById('btn-generate-architecture');
+const newProjectName = document.getElementById('new-project-name');
+const newProjectGoal = document.getElementById('new-project-goal');
+const newProjectSystemPrompt = document.getElementById('new-project-system-prompt');
+const systemPromptStatus = document.getElementById('system-prompt-status');
 
 btnNewChat.addEventListener('click', () => {
-    const name = prompt("Enter a name for the new project (or leave blank for random ID):");
-    socket.emit('system:new_chat', { name: name || null });
     projectSidebar.classList.remove('open');
     mainUi.classList.remove('sidebar-open-push');
+    
+    // Reset modal state
+    newProjectName.value = '';
+    newProjectGoal.value = '';
+    newProjectSystemPrompt.value = '';
+    systemPromptStatus.textContent = 'Awaiting generation...';
+    systemPromptStatus.style.color = 'gray';
+    
+    newProjectModal.classList.remove('hidden');
+});
+
+btnCancelNewProject.addEventListener('click', () => {
+    newProjectModal.classList.add('hidden');
+});
+
+btnGenerateArchitecture.addEventListener('click', () => {
+    const goal = newProjectGoal.value.trim();
+    if (!goal) {
+        systemPromptStatus.textContent = 'Please describe what you want to build first!';
+        systemPromptStatus.style.color = '#ff3333';
+        return;
+    }
+    
+    systemPromptStatus.textContent = 'Generating with AI... ⚡';
+    systemPromptStatus.style.color = 'var(--neon-cyan)';
+    btnGenerateArchitecture.disabled = true;
+    
+    socket.emit('system:generate_project_spec', { goal });
+});
+
+btnSubmitNewProject.addEventListener('click', () => {
+    const name = newProjectName.value.trim() || null;
+    const systemPrompt = newProjectSystemPrompt.value.trim() || null;
+    
+    socket.emit('system:new_chat', { name, systemPrompt });
+    newProjectModal.classList.add('hidden');
     
     // Clear the active DOM immediately to show UI reset
     document.querySelectorAll('.terminal-output').forEach(el => el.innerHTML = '');
@@ -84,11 +115,13 @@ btnCloneRepo.addEventListener('click', () => {
     pathDisplay.textContent = '...cloning...';
 });
 
-// Phase 14: Project Settings
+// Phase 14 / 20: Project Settings
 const projectSettingsModal = document.getElementById('project-settings-modal');
 const btnCancelSettings = document.getElementById('btn-cancel-settings');
 const btnSaveSettings = document.getElementById('btn-save-settings');
 const settingsPromptInput = document.getElementById('settings-prompt-input');
+const settingsExclusionsInput = document.getElementById('settings-exclusions-input');
+const settingsEngineSelect = document.getElementById('settings-engine-select');
 
 let editingProjectSettingsId = null;
 
@@ -100,7 +133,9 @@ btnSaveSettings.addEventListener('click', () => {
     if (!editingProjectSettingsId) return;
     const payload = {
         projectId: editingProjectSettingsId,
-        systemPrompt: settingsPromptInput.value.trim()
+        systemPrompt: settingsPromptInput.value.trim(),
+        exclusions: settingsExclusionsInput.value.trim(),
+        engine: settingsEngineSelect.value
     };
     socket.emit('system:save_settings', payload);
     projectSettingsModal.classList.add('hidden');
@@ -112,6 +147,7 @@ const globalSettingsModal = document.getElementById('global-settings-modal');
 const btnCancelGlobalSettings = document.getElementById('btn-cancel-global-settings');
 const btnSaveGlobalSettings = document.getElementById('btn-save-global-settings');
 const geminiKeyInput = document.getElementById('gemini-key-input');
+const globalPinInput = document.getElementById('global-pin-input');
 const btnInstallOllama = document.getElementById('btn-install-ollama');
 const toggleRadio = document.getElementById('toggle-radio');
 const themeCyanInput = document.getElementById('theme-cyan-input');
@@ -119,7 +155,15 @@ const themePinkInput = document.getElementById('theme-pink-input');
 const ollamaStatus = document.getElementById('ollama-status');
 const ollamaModelSelect = document.getElementById('ollama-model-select');
 const btnPullModel = document.getElementById('btn-pull-model');
+const fontScaleInput = document.getElementById('font-scale-input');
+const fontScaleValue = document.getElementById('font-scale-value');
+const toggleAutosave = document.getElementById('toggle-autosave');
+const crawlerDepthInput = document.getElementById('crawler-depth-input');
 let currentOllamaModel = '';
+
+fontScaleInput.addEventListener('input', () => {
+    fontScaleValue.textContent = fontScaleInput.value + 'px';
+});
 
 btnGlobalSettings.addEventListener('click', () => {
     globalSettingsModal.classList.remove('hidden');
@@ -142,15 +186,20 @@ btnSaveGlobalSettings.addEventListener('click', () => {
     if (window.ollamaPollInterval) clearInterval(window.ollamaPollInterval);
     const payload = {
         geminiKey: geminiKeyInput.value.trim(),
+        pin: globalPinInput.value.trim(),
         enableRadio: toggleRadio.checked,
         neonCyan: themeCyanInput.value,
         neonPink: themePinkInput.value,
-        ollamaModel: ollamaModelSelect.value
+        ollamaModel: ollamaModelSelect.value,
+        fontScale: parseInt(fontScaleInput.value, 10),
+        enableAutosave: toggleAutosave.checked,
+        crawlerDepth: parseInt(crawlerDepthInput.value, 10) || 5
     };
     
     // Apply aesthetics immediately
     document.documentElement.style.setProperty('--neon-cyan', payload.neonCyan);
     document.documentElement.style.setProperty('--neon-pink', payload.neonPink);
+    document.documentElement.style.setProperty('--font-scale', payload.fontScale + 'px');
     
     if (window.lofiAppInstance) {
         window.lofiAppInstance.setAudioEnabled(payload.enableRadio);
@@ -695,19 +744,45 @@ function initializeSocket(token) {
         pathDisplay.textContent = '...loading...';
     });
 
-    // Phase 14: Settings Injection
+    // Phase 14 / 20: Settings Injection
     socket.on('system:settings_loaded', (settings) => {
         if (settings && settings.systemPrompt) {
             settingsPromptInput.value = settings.systemPrompt;
         } else {
             settingsPromptInput.value = '';
         }
+        
+        if (settings && settings.exclusions !== undefined) {
+            settingsExclusionsInput.value = settings.exclusions;
+        } else {
+            settingsExclusionsInput.value = '';
+        }
+
+        if (settings && settings.engine !== undefined) {
+            settingsEngineSelect.value = settings.engine;
+        } else {
+            settingsEngineSelect.value = 'default';
+        }
     });
 
-    // Phase 15: Global Settings Injection
+    // Phase 20: Receive AI-Generated Architecture
+    socket.on('system:project_spec_generated', (data) => {
+        btnGenerateArchitecture.disabled = false;
+        if (data.error) {
+            systemPromptStatus.textContent = `Error: ${data.error}`;
+            systemPromptStatus.style.color = '#ff3333';
+        } else {
+            newProjectSystemPrompt.value = data.systemPrompt;
+            systemPromptStatus.textContent = 'Generated Successfully!';
+            systemPromptStatus.style.color = '#00ff00';
+        }
+    });
+
+    // Phase 15 / 20: Global Settings Injection
     socket.on('system:global_settings_loaded', (settings) => {
         if (!settings) return;
         if (settings.geminiKey !== undefined) geminiKeyInput.value = settings.geminiKey;
+        if (settings.pin !== undefined) globalPinInput.value = settings.pin;
         if (settings.enableRadio !== undefined) {
             toggleRadio.checked = settings.enableRadio;
             if (window.lofiAppInstance) window.lofiAppInstance.setAudioEnabled(settings.enableRadio);
@@ -715,6 +790,14 @@ function initializeSocket(token) {
         if (settings.neonCyan !== undefined) themeCyanInput.value = settings.neonCyan;
         if (settings.neonPink !== undefined) themePinkInput.value = settings.neonPink;
         if (settings.ollamaModel !== undefined) currentOllamaModel = settings.ollamaModel;
+        
+        if (settings.fontScale !== undefined) {
+            fontScaleInput.value = settings.fontScale;
+            fontScaleValue.textContent = settings.fontScale + 'px';
+            document.documentElement.style.setProperty('--font-scale', settings.fontScale + 'px');
+        }
+        if (settings.enableAutosave !== undefined) toggleAutosave.checked = settings.enableAutosave;
+        if (settings.crawlerDepth !== undefined) crawlerDepthInput.value = settings.crawlerDepth;
     });
 
     socket.on('system:ollama_status', (data) => {
@@ -806,7 +889,7 @@ function sendCommand() {
 
     const isAutonomous = document.getElementById('auto-dev-toggle').checked;
 
-    appendToTerminal(`\n[${currentMode.toUpperCase()}] > ${cmd}\n`);
+    appendToTerminal(`\n[USER] > ${cmd}\n\n[${currentMode.toUpperCase()}] > `);
     socket.emit('command', { command: cmd, mode: currentMode, autonomous: isAutonomous });
     commandInput.value = '';
 }
@@ -841,13 +924,29 @@ btnMkdir.addEventListener('click', () => {
     }
 });
 
-// Auto-login check
-const savedPin = localStorage.getItem('ag_remote_pin');
-if (savedPin) {
-    initializeSocket(savedPin);
-} else {
-    pinInput.focus();
-}
+// Phase 19: First-Launch Zero Friction Auto-login check
+(async function initApp() {
+    try {
+        const res = await fetch('/api/auth-check');
+        const data = await res.json();
+        
+        const savedPin = localStorage.getItem('ag_remote_pin');
+        
+        if (!data.authRequired) {
+            // No PIN configured globally - bypass authentication
+            initializeSocket('anonymous');
+        } else if (savedPin) {
+            // PIN required, but we have a saved one
+            initializeSocket(savedPin);
+        } else {
+            // PIN required and none saved - show modal
+            pinInput.focus();
+        }
+    } catch(e) {
+        console.error("Auth check failed:", e);
+        pinInput.focus();
+    }
+})();
 
 // Global Keyboard Shortcuts
 document.addEventListener('keydown', (e) => {

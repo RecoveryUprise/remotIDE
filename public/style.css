@@ -385,6 +385,7 @@ main {
     word-wrap: break-word;
     color: #fff;
     text-shadow: 0 0 2px #fff;
+    font-size: var(--font-scale, 14px);
 }
 
 /* Reset whitespace for injected markdown HTML elements */
@@ -792,16 +793,10 @@ main {
         margin-top: 5px;
     }
 
-    /* Project Manager Sidebar - Sliding Drawer on Mobile */
+    /* Project Manager Sidebar - Revert to 60px default on mobile */
     .sidebar {
-        width: 280px !important;
-        transform: translateX(-100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 3000;
         box-shadow: 10px 0 25px rgba(0,0,0,0.9);
-    }
-    .sidebar.open {
-        transform: translateX(0);
     }
     
     /* Hide the cloning mechanism on mobile */
