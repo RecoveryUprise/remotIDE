@@ -51,6 +51,52 @@
         </div>
     </div>
 
+    <!-- Phase 15: Global Settings Modal -->
+    <div id="global-settings-modal" class="modal hidden">
+        <div class="modal-content synth-box" style="width: 80%; max-width: 600px; display: flex; flex-direction: column; gap: 15px;">
+            <h2 style="color: var(--neon-cyan); margin: 0;">GLOBAL SETTINGS</h2>
+            
+            <div style="padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.2);">
+                <h4 style="color: var(--neon-pink); margin: 0 0 10px 0;">Environment Configurations</h4>
+                <label style="color: var(--neon-cyan); font-size: 0.9em;">Gemini API Key (.env)</label>
+                <input type="password" id="gemini-key-input" class="synth-input" placeholder="AIzaSy..." style="width: 100%; margin: 5px 0 15px 0;" autocomplete="off" />
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,0,255,0.3); padding-top: 10px;">
+                    <div>
+                        <span style="color: var(--neon-cyan); font-size: 0.9em;">Ollama Local LLM</span><br>
+                        <span id="ollama-status" style="color: gray; font-size: 0.8em;">Status: Unknown</span>
+                    </div>
+                    <button id="btn-install-ollama" class="synth-btn small-btn" style="margin: 0;">INSTALL OLLAMA</button>
+                </div>
+            </div>
+
+            <div style="padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.2);">
+                <h4 style="color: var(--neon-pink); margin: 0 0 10px 0;">UI Preferences</h4>
+                
+                <label style="color: var(--neon-cyan); font-size: 0.9em; display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    Enable Lofi Radio Player
+                    <input type="checkbox" id="toggle-radio" checked style="transform: scale(1.5);">
+                </label>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex: 1;">
+                        <label style="color: var(--neon-cyan); font-size: 0.8em;">Cyan Override</label>
+                        <input type="color" id="theme-cyan-input" value="#00ffff" style="width: 100%; cursor: pointer;" />
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="color: var(--neon-pink); font-size: 0.8em;">Pink Override</label>
+                        <input type="color" id="theme-pink-input" value="#ff00ff" style="width: 100%; cursor: pointer;" />
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                <button id="btn-cancel-global-settings" class="synth-btn" style="background: transparent; border-color: rgba(0,255,255,0.3); color: white;">CANCEL</button>
+                <button id="btn-save-global-settings" class="synth-btn">SAVE CONFIG</button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="main-ui" class="hidden container">
         <!-- PHASE 7: Chat History Sidebar -->
@@ -73,6 +119,7 @@
 
         <header style="display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px;">
             <h1 class="neon-text" style="margin: 0;">remotIDE <span class="blink">_</span></h1>
+            <button id="btn-global-settings" class="synth-btn icon-btn" title="Global Settings" style="position: absolute; right: 0; margin: 0; padding: 5px 12px; font-size: 1.2em;">⚙️</button>
         </header>
 
         <nav class="tabs">

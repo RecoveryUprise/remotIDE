@@ -93,6 +93,64 @@ btnSaveSettings.addEventListener('click', () => {
     projectSettingsModal.classList.add('hidden');
 });
 
+// Phase 15: Global Settings
+const btnGlobalSettings = document.getElementById('btn-global-settings');
+const globalSettingsModal = document.getElementById('global-settings-modal');
+const btnCancelGlobalSettings = document.getElementById('btn-cancel-global-settings');
+const btnSaveGlobalSettings = document.getElementById('btn-save-global-settings');
+const geminiKeyInput = document.getElementById('gemini-key-input');
+const btnInstallOllama = document.getElementById('btn-install-ollama');
+const toggleRadio = document.getElementById('toggle-radio');
+const themeCyanInput = document.getElementById('theme-cyan-input');
+const themePinkInput = document.getElementById('theme-pink-input');
+const ollamaStatus = document.getElementById('ollama-status');
+
+btnGlobalSettings.addEventListener('click', () => {
+    globalSettingsModal.classList.remove('hidden');
+    socket.emit('system:get_global_settings');
+    socket.emit('system:check_ollama');
+});
+
+btnCancelGlobalSettings.addEventListener('click', () => {
+    globalSettingsModal.classList.add('hidden');
+});
+
+btnSaveGlobalSettings.addEventListener('click', () => {
+    const payload = {
+        geminiKey: geminiKeyInput.value.trim(),
+        enableRadio: toggleRadio.checked,
+        neonCyan: themeCyanInput.value,
+        neonPink: themePinkInput.value
+    };
+    
+    // Apply aesthetics immediately
+    document.documentElement.style.setProperty('--neon-cyan', payload.neonCyan);
+    document.documentElement.style.setProperty('--neon-pink', payload.neonPink);
+    
+    const lofiWidget = document.getElementById('lofi-widget');
+    if (lofiWidget) {
+        lofiWidget.style.display = payload.enableRadio ? 'flex' : 'none';
+        if (!payload.enableRadio) {
+            // Attempt to pause audio if existing
+            const ytAudio = document.getElementById('yt-audio');
+            if (ytAudio && !ytAudio.paused) ytAudio.pause();
+        }
+    }
+    
+    socket.emit('system:save_global_settings', payload);
+    globalSettingsModal.classList.add('hidden');
+});
+
+btnInstallOllama.addEventListener('click', () => {
+    ollamaStatus.textContent = 'Status: Installing... (Check terminal)';
+    ollamaStatus.style.color = '#ffaa00';
+    socket.emit('system:install_ollama');
+    globalSettingsModal.classList.add('hidden');
+    
+    // Focus terminal to watch install progress
+    document.querySelector('[data-target="cmd"]').click();
+});
+
 // --- VOICE DICTATION ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
@@ -606,6 +664,20 @@ function initializeSocket(token) {
         } else {
             settingsPromptInput.value = '';
         }
+    });
+
+    // Phase 15: Global Settings Injection
+    socket.on('system:global_settings_loaded', (settings) => {
+        if (!settings) return;
+        if (settings.geminiKey !== undefined) geminiKeyInput.value = settings.geminiKey;
+        if (settings.enableRadio !== undefined) toggleRadio.checked = settings.enableRadio;
+        if (settings.neonCyan !== undefined) themeCyanInput.value = settings.neonCyan;
+        if (settings.neonPink !== undefined) themePinkInput.value = settings.neonPink;
+    });
+
+    socket.on('system:ollama_status', (statusStr) => {
+        ollamaStatus.textContent = `Status: ${statusStr}`;
+        ollamaStatus.style.color = statusStr.includes('Installed') ? 'var(--neon-cyan)' : 'gray';
     });
 
     socket.on('disconnect', () => {

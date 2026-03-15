@@ -230,6 +230,53 @@ The backend will intercept this block and execute it natively in the requested s
         }
     };
 
+    // Phase 15: Global Settings IO
+    const loadGlobalSettings = () => {
+        try {
+            const settingsPath = path.join(WORKSPACE_DIR, '.antigravity_global.json');
+            let settings = {};
+            if (fs.existsSync(settingsPath)) {
+                settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            }
+            // Populate Gemini Key from environment if not explicitly in settings
+            if (!settings.geminiKey && process.env.GEMINI_API_KEY) {
+                settings.geminiKey = process.env.GEMINI_API_KEY;
+            }
+            return settings;
+        } catch (e) {
+            console.error("Error loading global settings:", e);
+        }
+        return {};
+    };
+
+    const saveGlobalSettings = (settingsObj) => {
+        try {
+            const settingsPath = path.join(WORKSPACE_DIR, '.antigravity_global.json');
+            fs.writeFileSync(settingsPath, JSON.stringify(settingsObj, null, 2), 'utf8');
+            
+            // Sync Gemini API Key to .env file
+            if (settingsObj.geminiKey && settingsObj.geminiKey.trim() !== '') {
+                const envPath = path.join(process.cwd(), '.env');
+                let envContent = '';
+                if (fs.existsSync(envPath)) {
+                    envContent = fs.readFileSync(envPath, 'utf8');
+                }
+                
+                if (envContent.includes('GEMINI_API_KEY=')) {
+                    envContent = envContent.replace(/GEMINI_API_KEY=.*/g, `GEMINI_API_KEY=${settingsObj.geminiKey}`);
+                } else {
+                    envContent += `\nGEMINI_API_KEY=${settingsObj.geminiKey}\n`;
+                }
+                fs.writeFileSync(envPath, envContent.trim() + '\n', 'utf8');
+                
+                // Apply immediately to the live Node process
+                process.env.GEMINI_API_KEY = settingsObj.geminiKey;
+            }
+        } catch (e) {
+            console.error("Error saving global settings:", e);
+        }
+    };
+
     // Helper for recursive deep file reading (Omniscient Context)
     const readDirectoryContentsDeep = (dir, depth = 0) => {
         if (depth > 5) return ""; // Max depth fuse
