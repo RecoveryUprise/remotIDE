@@ -640,3 +640,15 @@ if (savedPin) {
 } else {
     pinInput.focus();
 }
+
+// Global Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+        const selectedText = window.getSelection().toString();
+        // If the user isn't copying text, trigger the loop shredder
+        if (selectedText.length === 0) {
+            e.preventDefault();
+            btnAbort.click();
+        }
+    }
+});
