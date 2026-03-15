@@ -104,6 +104,8 @@ const toggleRadio = document.getElementById('toggle-radio');
 const themeCyanInput = document.getElementById('theme-cyan-input');
 const themePinkInput = document.getElementById('theme-pink-input');
 const ollamaStatus = document.getElementById('ollama-status');
+const ollamaModelSelect = document.getElementById('ollama-model-select');
+let currentOllamaModel = '';
 
 btnGlobalSettings.addEventListener('click', () => {
     globalSettingsModal.classList.remove('hidden');
@@ -120,7 +122,8 @@ btnSaveGlobalSettings.addEventListener('click', () => {
         geminiKey: geminiKeyInput.value.trim(),
         enableRadio: toggleRadio.checked,
         neonCyan: themeCyanInput.value,
-        neonPink: themePinkInput.value
+        neonPink: themePinkInput.value,
+        ollamaModel: ollamaModelSelect.value
     };
     
     // Apply aesthetics immediately
@@ -673,11 +676,28 @@ function initializeSocket(token) {
         if (settings.enableRadio !== undefined) toggleRadio.checked = settings.enableRadio;
         if (settings.neonCyan !== undefined) themeCyanInput.value = settings.neonCyan;
         if (settings.neonPink !== undefined) themePinkInput.value = settings.neonPink;
+        if (settings.ollamaModel !== undefined) currentOllamaModel = settings.ollamaModel;
     });
 
-    socket.on('system:ollama_status', (statusStr) => {
-        ollamaStatus.textContent = `Status: ${statusStr}`;
-        ollamaStatus.style.color = statusStr.includes('Installed') ? 'var(--neon-cyan)' : 'gray';
+    socket.on('system:ollama_status', (data) => {
+        if (typeof data === 'string') {
+            ollamaStatus.textContent = `Status: ${data}`;
+            ollamaStatus.style.color = data.includes('Installed') ? 'var(--neon-cyan)' : 'gray';
+            ollamaModelSelect.classList.add('hidden');
+        } else {
+            ollamaStatus.textContent = `Status: ${data.status}`;
+            ollamaStatus.style.color = data.status.includes('Ready') ? 'var(--neon-cyan)' : 'gray';
+            
+            if (data.models && data.models.length > 0) {
+                ollamaModelSelect.classList.remove('hidden');
+                ollamaModelSelect.innerHTML = data.models.map(m => `<option value="${m}">${m}</option>`).join('');
+                if (currentOllamaModel && data.models.includes(currentOllamaModel)) {
+                    ollamaModelSelect.value = currentOllamaModel;
+                }
+            } else {
+                ollamaModelSelect.classList.add('hidden');
+            }
+        }
     });
 
     socket.on('system:force_reload', () => {

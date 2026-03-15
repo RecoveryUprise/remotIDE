@@ -912,8 +912,11 @@ WHAT NOT TO DO (ANTI-PATTERNS):
                      const contextualizedMessage = `${customPrompt}[System Context: The user is currently operating in the local directory: ${cwd}. \n\n### OMNISCIENT PROJECT STATE ###\nThe following is the complete contents of every code file currently in the project directory:\n${omniscientContext}\n################################\n]${persistentContext}${logContext}${taggedFilesContext}\n\nUser Request: ${messagePrompt}`;
                      
                      try {
+                         const globalSettings = loadGlobalSettings();
+                         const modelName = globalSettings.ollamaModel || 'llama3';
+                         
                          const payload = {
-                             model: 'llama3:8b-instruct-q6_K',
+                             model: modelName,
                              prompt: contextualizedMessage,
                              system: systemInstruction,
                              stream: true
@@ -1286,10 +1289,19 @@ WHAT NOT TO DO (ANTI-PATTERNS):
 
     socket.on('system:check_ollama', async () => {
         try {
-            await execPromise('ollama -v');
-            socket.emit('system:ollama_status', 'Installed & Ready');
+            const { stdout } = await execPromise('ollama list');
+            const lines = stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            const models = [];
+            
+            // Start at 1 to skip the header line ("NAME ID SIZE MODIFIED")
+            for (let i = 1; i < lines.length; i++) {
+                const parts = lines[i].split(/\s+/);
+                if (parts[0]) models.push(parts[0]);
+            }
+            
+            socket.emit('system:ollama_status', { status: 'Installed & Ready', models });
         } catch (e) {
-            socket.emit('system:ollama_status', 'Missing / Not Found');
+            socket.emit('system:ollama_status', 'Missing / Not Found (Restart Node if recently installed)');
         }
     });
 
