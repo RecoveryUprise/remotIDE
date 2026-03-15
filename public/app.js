@@ -72,23 +72,21 @@ btnCloneRepo.addEventListener('click', () => {
 });
 
 // Phase 14: Project Settings
-const btnProjectSettings = document.getElementById('btn-project-settings');
 const projectSettingsModal = document.getElementById('project-settings-modal');
 const btnCancelSettings = document.getElementById('btn-cancel-settings');
 const btnSaveSettings = document.getElementById('btn-save-settings');
 const settingsPromptInput = document.getElementById('settings-prompt-input');
 
-btnProjectSettings.addEventListener('click', () => {
-    projectSettingsModal.classList.remove('hidden');
-    socket.emit('system:get_settings');
-});
+let editingProjectSettingsId = null;
 
 btnCancelSettings.addEventListener('click', () => {
     projectSettingsModal.classList.add('hidden');
 });
 
 btnSaveSettings.addEventListener('click', () => {
+    if (!editingProjectSettingsId) return;
     const payload = {
+        projectId: editingProjectSettingsId,
         systemPrompt: settingsPromptInput.value.trim()
     };
     socket.emit('system:save_settings', payload);
@@ -549,16 +547,27 @@ function initializeSocket(token) {
             btn.className = 'chat-item';
             btn.innerHTML = `
                 <div class="chat-icon">${chat.id.charAt(0).toUpperCase()}</div>
-                <div class="chat-item-text">
+                <div class="chat-item-text" style="flex: 1;">
                     <strong>${chat.id}</strong><br/>
                     <span style="font-size:0.75em; color:gray;">${chat.hasHistory ? 'Saved State' : 'Empty State'}</span>
                 </div>
+                <button class="synth-btn icon-btn btn-chat-settings" title="Project Settings" style="font-size: 1.2em; padding: 5px; opacity: 0.6; border: none; background: transparent;">⚙️</button>
             `;
             
             btn.addEventListener('click', () => {
                 socket.emit('system:load_chat', chat.id);
                 projectSidebar.classList.remove('open');
+                mainUi.classList.remove('sidebar-open-push');
             });
+            
+            const settingsBtn = btn.querySelector('.btn-chat-settings');
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                editingProjectSettingsId = chat.id;
+                projectSettingsModal.classList.remove('hidden');
+                socket.emit('system:get_settings', { projectId: chat.id });
+            });
+            
             chatHistoryList.appendChild(btn);
         });
     });
