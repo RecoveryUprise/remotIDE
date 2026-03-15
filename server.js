@@ -1440,6 +1440,33 @@ OUTPUT INSTRUCTIONS:
         }
     });
 
+    socket.on('system:delete_chat', (projectId) => {
+        try {
+            if (!projectId || projectId === 'readme') return;
+            const projectPath = path.join(getProjectsDir(), projectId);
+            
+            // Protect against deleting outside of remotIDE_Projects
+            if (!projectPath.startsWith(getProjectsDir())) return;
+            
+            if (fs.existsSync(projectPath)) {
+                fs.rmSync(projectPath, { recursive: true, force: true });
+            }
+            
+            // If they deleted their currently active framework, bounce them to the sandbox
+            if (socket.currentDir === projectPath) {
+                socket.currentDir = path.join(getProjectsDir(), 'readme');
+                socket.terminalLogs = { cmd: [], powershell: [], gemini: [], ollama: [], manual: [] };
+                socket.emit('system:chat_loaded', socket.terminalLogs);
+                socket.emit('fs:refresh_request');
+            }
+            
+            socket.emit('output', { text: `\n[SYSTEM] Permanently deleted project workspace: ${projectId}\n`, mode: 'browser' });
+            socket.emit('system:chats_refresh_request');
+        } catch(e) {
+            socket.emit('output', { text: `[Error deleting chat] ${e.message}\n`, mode: 'browser' });
+        }
+    });
+
     // Phase 14: Project Settings
     socket.on('system:get_settings', (payload) => {
         if (!payload || !payload.projectId) return;

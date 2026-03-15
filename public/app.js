@@ -697,6 +697,7 @@ function initializeSocket(token) {
                     <span style="font-size:0.75em; color:gray;">${chat.hasHistory ? 'Saved State' : 'Empty State'}</span>
                 </div>
                 <button class="synth-btn icon-btn btn-chat-settings" title="Project Settings" style="font-size: 1.2em; padding: 5px; opacity: 0.6; border: none; background: transparent;">⚙️</button>
+                <button class="synth-btn icon-btn btn-chat-delete" title="Delete Project" style="font-size: 1.2em; padding: 5px; opacity: 0.6; border: none; background: transparent; color: var(--neon-pink);">❌</button>
             `;
             
             btn.addEventListener('click', () => {
@@ -711,6 +712,18 @@ function initializeSocket(token) {
                 editingProjectSettingsId = chat.id;
                 projectSettingsModal.classList.remove('hidden');
                 socket.emit('system:get_settings', { projectId: chat.id });
+            });
+            
+            const deleteBtn = btn.querySelector('.btn-chat-delete');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (chat.id === 'readme') {
+                    alert('Cannot delete the default /readme/ sandbox.');
+                    return;
+                }
+                if (confirm(`Are you sure you want to PERMANENTLY delete the project '${chat.id}' and all its files?`)) {
+                    socket.emit('system:delete_chat', chat.id);
+                }
             });
             
             chatHistoryList.appendChild(btn);
