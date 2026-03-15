@@ -263,14 +263,20 @@ input[type="password"], input[type="text"] {
     color: white;
 }
 
-/* Main UI */
 .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     padding: 20px;
     max-width: 100%;
-    margin: 0;
+    margin-left: 0;
+    width: 100%;
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.container.sidebar-open-push {
+    margin-left: 280px;
+    width: calc(100% - 280px);
 }
 
 header {
@@ -607,6 +613,12 @@ main {
     flex: 2; /* 2/3 of the width for code */
     display: flex;
     flex-direction: column;
+    min-height: 0;
+}
+
+/* Force CodeMirror to fill the flex pane */
+.viewer-editor-pane .CodeMirror {
+    height: 100%;
 }
 
 .viewer-chat-pane {
