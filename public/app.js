@@ -71,6 +71,30 @@ btnCloneRepo.addEventListener('click', () => {
     pathDisplay.textContent = '...cloning...';
 });
 
+// Phase 14: Project Settings
+const btnProjectSettings = document.getElementById('btn-project-settings');
+const projectSettingsModal = document.getElementById('project-settings-modal');
+const btnCancelSettings = document.getElementById('btn-cancel-settings');
+const btnSaveSettings = document.getElementById('btn-save-settings');
+const settingsPromptInput = document.getElementById('settings-prompt-input');
+
+btnProjectSettings.addEventListener('click', () => {
+    projectSettingsModal.classList.remove('hidden');
+    socket.emit('system:get_settings');
+});
+
+btnCancelSettings.addEventListener('click', () => {
+    projectSettingsModal.classList.add('hidden');
+});
+
+btnSaveSettings.addEventListener('click', () => {
+    const payload = {
+        systemPrompt: settingsPromptInput.value.trim()
+    };
+    socket.emit('system:save_settings', payload);
+    projectSettingsModal.classList.add('hidden');
+});
+
 // --- VOICE DICTATION ---
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
@@ -564,6 +588,15 @@ function initializeSocket(token) {
         document.querySelector('[data-target="gemini"]').click();
         
         pathDisplay.textContent = '...loading...';
+    });
+
+    // Phase 14: Settings Injection
+    socket.on('system:settings_loaded', (settings) => {
+        if (settings && settings.systemPrompt) {
+            settingsPromptInput.value = settings.systemPrompt;
+        } else {
+            settingsPromptInput.value = '';
+        }
     });
 
     socket.on('disconnect', () => {

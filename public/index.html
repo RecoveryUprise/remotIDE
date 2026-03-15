@@ -38,13 +38,29 @@
         </div>
     </div>
 
+    <!-- Phase 14: Project Settings Modal -->
+    <div id="project-settings-modal" class="modal hidden">
+        <div class="modal-content synth-box" style="width: 80%; max-width: 800px; display: flex; flex-direction: column; gap: 15px;">
+            <h2 style="color: var(--neon-cyan); margin: 0;">PROJECT SETTINGS</h2>
+            <p style="color: var(--neon-pink); margin: 0; font-size: 0.9em;">Define custom AI instructions, specific technology stacks, or architectural rules strictly for this workspace.</p>
+            <textarea id="settings-prompt-input" class="synth-input" placeholder="e.g. You are an expert React developer. Prioritize accessibility and use Tailwind CSS..." style="min-height: 250px; font-size: 14px; padding: 15px; resize: vertical;"></textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="btn-cancel-settings" class="synth-btn" style="background: transparent; border-color: rgba(0,255,255,0.3); color: white;">CANCEL</button>
+                <button id="btn-save-settings" class="synth-btn">SAVE</button>
+            </div>
+        </div>
+    </div>
+
 
     <div id="main-ui" class="hidden container">
         <!-- PHASE 7: Chat History Sidebar -->
         <aside id="project-sidebar" class="sidebar">
             <div class="sidebar-header">
                 <h3 style="color: var(--neon-cyan); margin:0;">PROJECTS</h3>
-                <button id="btn-close-sidebar" class="synth-btn icon-btn" style="border: 1px solid var(--neon-cyan); width: auto; margin: 0; background: rgba(0,255,255,0.1); padding: 5px 15px;" title="Collapse Sidebar">≡</button>
+                <div class="sidebar-header-btns" style="display: flex; gap: 5px; flex-direction: column; align-items: center;">
+                    <button id="btn-close-sidebar" class="synth-btn icon-btn" style="border: 1px solid var(--neon-cyan); width: auto; margin: 0; background: rgba(0,255,255,0.1); padding: 5px 15px;" title="Collapse Sidebar">≡</button>
+                    <button id="btn-project-settings" class="synth-btn icon-btn" style="border: 1px solid var(--neon-pink); width: auto; margin: 0; background: rgba(255,0,255,0.1); padding: 5px 12px; font-size: 1.2em;" title="Project Settings">⚙️</button>
+                </div>
             </div>
             <div class="sidebar-actions" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
                 <button id="btn-new-chat" class="synth-btn" style="width: 100%; margin: 0;">+ NEW PROJECT</button>
