@@ -139,6 +139,10 @@ btnSaveGlobalSettings.addEventListener('click', () => {
     document.documentElement.style.setProperty('--neon-cyan', payload.neonCyan);
     document.documentElement.style.setProperty('--neon-pink', payload.neonPink);
     
+    if (window.lofiAppInstance) {
+        window.lofiAppInstance.setAudioEnabled(payload.enableRadio);
+    }
+    
     const lofiWidget = document.getElementById('lofi-widget');
     if (lofiWidget) {
         lofiWidget.style.display = payload.enableRadio ? 'flex' : 'none';
@@ -691,7 +695,10 @@ function initializeSocket(token) {
     socket.on('system:global_settings_loaded', (settings) => {
         if (!settings) return;
         if (settings.geminiKey !== undefined) geminiKeyInput.value = settings.geminiKey;
-        if (settings.enableRadio !== undefined) toggleRadio.checked = settings.enableRadio;
+        if (settings.enableRadio !== undefined) {
+            toggleRadio.checked = settings.enableRadio;
+            if (window.lofiAppInstance) window.lofiAppInstance.setAudioEnabled(settings.enableRadio);
+        }
         if (settings.neonCyan !== undefined) themeCyanInput.value = settings.neonCyan;
         if (settings.neonPink !== undefined) themePinkInput.value = settings.neonPink;
         if (settings.ollamaModel !== undefined) currentOllamaModel = settings.ollamaModel;
