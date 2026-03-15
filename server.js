@@ -1179,7 +1179,6 @@ WHAT NOT TO DO (ANTI-PATTERNS):
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
-});
 
 function startServer(port) {
     server.listen(port, '0.0.0.0', () => {
