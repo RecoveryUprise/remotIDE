@@ -1270,6 +1270,39 @@ WHAT NOT TO DO (ANTI-PATTERNS):
         socket.emit('output', { text: `\n[SYSTEM] Project Settings Saved for ${payload.projectId}.\n`, mode: 'gemini' });
     });
 
+    // Phase 15: Global Settings & Diagnostics
+    socket.on('system:get_global_settings', () => {
+        const settingsObj = loadGlobalSettings();
+        socket.emit('system:global_settings_loaded', settingsObj);
+    });
+
+    socket.on('system:save_global_settings', (payload) => {
+        saveGlobalSettings(payload);
+        socket.emit('output', { text: `\n[SYSTEM] Global Settings Saved.\n`, mode: 'cmd' });
+    });
+
+    socket.on('system:check_ollama', async () => {
+        try {
+            await execPromise('ollama -v');
+            socket.emit('system:ollama_status', 'Installed & Ready');
+        } catch (e) {
+            socket.emit('system:ollama_status', 'Missing / Not Found');
+        }
+    });
+
+    socket.on('system:install_ollama', async () => {
+        socket.emit('output', { text: `\n[SYSTEM] Initiating headless download of Ollama Local LLM Engine via Winget...\nThis may take several minutes depending on your connection.\n\n`, mode: 'cmd' });
+        try {
+            pushLog('cmd', `[SYSTEM] Running: winget install Ollama.Ollama --accept-source-agreements --accept-package-agreements`, 'cmd');
+            const { stdout, stderr } = await execPromise('winget install Ollama.Ollama --accept-source-agreements --accept-package-agreements');
+            socket.emit('output', { text: stdout + '\n' + stderr + '\n\n[SYSTEM] Ollama Installation Complete! Please restart the remotIDE server to initialize the path variables.\n', mode: 'cmd' });
+            socket.emit('system:ollama_status', 'Installed (Restart Required)');
+        } catch (e) {
+            socket.emit('output', { text: `\n[SYSTEM ERROR] Failed to install Ollama via Winget: ${e.message}\nYou can install it manually from https://ollama.com\n`, mode: 'cmd' });
+            socket.emit('system:ollama_status', 'Install Failed');
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
