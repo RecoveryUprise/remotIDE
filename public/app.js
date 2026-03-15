@@ -33,6 +33,7 @@ const btnNewChat = document.getElementById('btn-new-chat');
 const chatHistoryList = document.getElementById('chat-history-list');
 const repoCloneUrl = document.getElementById('repo-clone-url');
 const btnCloneRepo = document.getElementById('btn-clone-repo');
+const btnOpenSidebar = document.getElementById('btn-open-sidebar');
 
 btnCloseSidebar.addEventListener('click', () => {
     if (projectSidebar.classList.contains('open')) {
@@ -46,6 +47,18 @@ btnCloseSidebar.addEventListener('click', () => {
         }
     }
 });
+
+if (btnOpenSidebar) {
+    btnOpenSidebar.addEventListener('click', () => {
+        if (!projectSidebar.classList.contains('open')) {
+            projectSidebar.classList.add('open');
+            mainUi.classList.add('sidebar-open-push');
+            if (socket && socket.connected) {
+                socket.emit('system:list_chats'); // Refresh list when opened
+            }
+        }
+    });
+}
 
 btnNewChat.addEventListener('click', () => {
     const name = prompt("Enter a name for the new project (or leave blank for random ID):");
