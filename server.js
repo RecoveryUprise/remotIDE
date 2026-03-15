@@ -1209,16 +1209,18 @@ WHAT NOT TO DO (ANTI-PATTERNS):
     });
 
     // Phase 14: Project Settings
-    socket.on('system:get_settings', () => {
-        if (!socket.currentDir || socket.currentDir === '/') return;
-        const settingsObj = loadProjectSettings(socket.currentDir);
+    socket.on('system:get_settings', (payload) => {
+        if (!payload || !payload.projectId) return;
+        const projectPath = path.join(getProjectsDir(), payload.projectId);
+        const settingsObj = loadProjectSettings(projectPath);
         socket.emit('system:settings_loaded', settingsObj);
     });
 
     socket.on('system:save_settings', (payload) => {
-        if (!socket.currentDir || socket.currentDir === '/') return;
-        saveProjectSettings(socket.currentDir, payload);
-        socket.emit('output', { text: `\n[SYSTEM] Project Settings Saved.\n`, mode: 'gemini' });
+        if (!payload || !payload.projectId) return;
+        const projectPath = path.join(getProjectsDir(), payload.projectId);
+        saveProjectSettings(projectPath, payload);
+        socket.emit('output', { text: `\n[SYSTEM] Project Settings Saved for ${payload.projectId}.\n`, mode: 'gemini' });
     });
 
     socket.on('disconnect', () => {
