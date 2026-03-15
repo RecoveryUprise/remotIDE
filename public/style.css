@@ -269,8 +269,8 @@ input[type="password"], input[type="text"] {
     flex-direction: column;
     height: 100vh;
     padding: 20px;
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
 }
 
 header {

@@ -165,6 +165,7 @@ fileChatInput.addEventListener('keypress', (e) => {
 
 viewerClose.addEventListener('click', () => {
     codeViewerModal.classList.add('hidden');
+    browserView.classList.remove('hidden');
 });
 
 viewerSave.addEventListener('click', () => {
@@ -172,6 +173,7 @@ viewerSave.addEventListener('click', () => {
     const content = globalCM.getValue();
     socket.emit('fs:write', { targetName: filename, content: content });
     codeViewerModal.classList.add('hidden');
+    browserView.classList.remove('hidden');
 });
 
 let socket = null;
@@ -189,12 +191,14 @@ tabBtns.forEach(btn => {
         if (target === 'browser') {
             shellView.classList.add('hidden');
             browserView.classList.remove('hidden');
+            codeViewerModal.classList.add('hidden');
             if (socket && socket.connected) {
                 socket.emit('fs:list');
             }
         } else {
             shellView.classList.remove('hidden');
             browserView.classList.add('hidden');
+            codeViewerModal.classList.add('hidden');
             currentMode = target;
             
             let placeholderText = `> Enter ${currentMode.toUpperCase()} command...`;
@@ -489,6 +493,7 @@ function initializeSocket(token) {
         // Auto-route incoming socket AI responses to this chat pane if open
         fileChatOutput.innerHTML = ''; 
         
+        browserView.classList.add('hidden');
         codeViewerModal.classList.remove('hidden');
     });
     

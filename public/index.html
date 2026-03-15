@@ -38,41 +38,6 @@
         </div>
     </div>
 
-    <div id="code-viewer-modal" class="modal hidden">
-        <div class="modal-content synth-box full-size">
-            <div class="viewer-header">
-                <h3 id="viewer-filename" class="neon-text">file.js</h3>
-                <div class="viewer-actions">
-                     <button id="viewer-save" class="synth-btn small-btn">SAVE</button>
-                     <button id="viewer-close" class="synth-btn small-btn">CLOSE</button>
-                </div>
-            </div>
-            
-            <div class="viewer-grid">
-                <!-- Left: Editor -->
-                <div class="viewer-editor-pane">
-                    <textarea id="viewer-content" class="editor-textarea" spellcheck="false"></textarea>
-                </div>
-                
-                <!-- Right: Context Chat -->
-                <div class="viewer-chat-pane">
-                    <div class="parsed-vars-container">
-                        <h4 style="color:var(--neon-pink); margin-bottom: 5px; font-size:0.9em;">[ PARSED VARIABLES ]</h4>
-                        <ul id="parsed-vars-list" style="list-style: none; padding: 0; margin: 0; font-family: monospace; font-size: 0.8em; color: var(--neon-cyan);">
-                            <!-- Populated by App.js Regex -->
-                        </ul>
-                    </div>
-                    <div id="file-chat-output" class="terminal-output" style="flex: 1; margin-top: 10px; overflow-y: auto; font-size:0.85em;"></div>
-                    <div class="chat-input-area" style="margin-top: 10px;">
-                        <input type="text" id="file-chat-input" placeholder="> Chat with this file..." autocomplete="off" style="width: 100%; box-sizing: border-box; font-size: 0.85em; padding: 8px; margin: 0; background: transparent; border: none; border-bottom: 2px solid var(--neon-pink); color: var(--neon-cyan); outline: none;" />
-                        <div style="display: flex; justify-content: flex-end;">
-                            <button id="file-chat-submit" class="synth-btn small-btn" style="min-width: 60px; margin: 0;">SEND</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="main-ui" class="hidden container">
         <!-- PHASE 7: Chat History Sidebar -->
