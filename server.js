@@ -206,6 +206,30 @@ The backend will intercept this block and execute it natively in the requested s
         } catch(e) { console.error("Could not save chat history:", e); }
     };
 
+    // Phase 14: Project Settings IO
+    const loadProjectSettings = (dirPath) => {
+        if (!dirPath) return {};
+        try {
+            const settingsPath = path.join(dirPath, '.antigravity_settings.json');
+            if (fs.existsSync(settingsPath)) {
+                return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+            }
+        } catch (e) {
+            console.error("Error loading project settings:", e);
+        }
+        return {};
+    };
+
+    const saveProjectSettings = (dirPath, settingsObj) => {
+        if (!dirPath) return;
+        try {
+            const settingsPath = path.join(dirPath, '.antigravity_settings.json');
+            fs.writeFileSync(settingsPath, JSON.stringify(settingsObj, null, 2), 'utf8');
+        } catch (e) {
+            console.error("Error saving project settings:", e);
+        }
+    };
+
     // Helper for recursive deep file reading (Omniscient Context)
     const readDirectoryContentsDeep = (dir, depth = 0) => {
         if (depth > 5) return ""; // Max depth fuse
@@ -1174,6 +1198,19 @@ WHAT NOT TO DO (ANTI-PATTERNS):
         } catch(e) {
             socket.emit('output', { text: `[Error loading chat] ${e.message}\n`, mode: 'gemini' });
         }
+    });
+
+    // Phase 14: Project Settings
+    socket.on('system:get_settings', () => {
+        if (!socket.currentDir || socket.currentDir === '/') return;
+        const settingsObj = loadProjectSettings(socket.currentDir);
+        socket.emit('system:settings_loaded', settingsObj);
+    });
+
+    socket.on('system:save_settings', (payload) => {
+        if (!socket.currentDir || socket.currentDir === '/') return;
+        saveProjectSettings(socket.currentDir, payload);
+        socket.emit('output', { text: `\n[SYSTEM] Project Settings Saved.\n`, mode: 'gemini' });
     });
 
     socket.on('disconnect', () => {
