@@ -37,6 +37,7 @@ const btnCloneRepo = document.getElementById('btn-clone-repo');
 
 btnToggleSidebar.addEventListener('click', () => {
     projectSidebar.classList.add('open');
+    mainUi.classList.add('sidebar-open-push');
     if (socket && socket.connected) {
         socket.emit('system:list_chats'); // Refresh list when opened
     }
@@ -44,12 +45,14 @@ btnToggleSidebar.addEventListener('click', () => {
 
 btnCloseSidebar.addEventListener('click', () => {
     projectSidebar.classList.remove('open');
+    mainUi.classList.remove('sidebar-open-push');
 });
 
 btnNewChat.addEventListener('click', () => {
     const name = prompt("Enter a name for the new project (or leave blank for random ID):");
     socket.emit('system:new_chat', { name: name || null });
     projectSidebar.classList.remove('open');
+    mainUi.classList.remove('sidebar-open-push');
     
     // Clear the active DOM immediately to show UI reset
     document.querySelectorAll('.terminal-output').forEach(el => el.innerHTML = '');
@@ -62,6 +65,7 @@ btnCloneRepo.addEventListener('click', () => {
     socket.emit('system:git_clone', { url });
     repoCloneUrl.value = '';
     projectSidebar.classList.remove('open');
+    mainUi.classList.remove('sidebar-open-push');
     
     // Clear the active DOM immediately
     document.querySelectorAll('.terminal-output').forEach(el => el.innerHTML = '');
